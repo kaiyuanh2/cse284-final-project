@@ -18,6 +18,8 @@ MEM_GB=8
 # Beagle/RefinedIBD jar files
 BEAGLE_JAR="beagle.jar"
 REFINED_IBD_JAR="refined-ibd.jar"
+MERGE_IBD_JAR="merge-ibd-segments.jar"
+MERGE_IBD_URL="https://faculty.washington.edu/browning/refined-ibd/merge-ibd-segments.17Jan20.102.jar"
 
 # Environment Check
 need_cmd() { command -v "$1" >/dev/null 2>&1 || { echo "Missing required command: $1" >&2; exit 1; }; }
@@ -29,6 +31,13 @@ need_cmd bgzip
 need_cmd tabix
 need_cmd java
 need_cmd wget
+
+if [[ ! -f "$MERGE_IBD_JAR" ]]; then
+  echo "*** merge-ibd-segments.jar not found — downloading ***"
+  wget -O "$MERGE_IBD_JAR" "$MERGE_IBD_URL"
+fi
+
+[[ -f "$MERGE_IBD_JAR" ]] || { echo "Failed to obtain $MERGE_IBD_JAR"; exit 1; }
 
 # Step 1: Remove duplicate positions (CHR:BP) — Avoid Beagle rejection
 echo "*** Step 1: Removing duplicate CHR:BP variants from ${BFILE_IN} ***"
@@ -93,3 +102,26 @@ java -Xmx"${MEM_GB}g" -jar "${REFINED_IBD_JAR}" \
 
 echo "[Done] Refined IBD output: ${REFINED_IBD_PREFIX}.*"
 echo "All Done"
+
+# Step 7: Merge IBD segments
+echo "*** Step 7: Merging IBD segments ***"
+
+MERGED_PREFIX="${REFINED_IBD_PREFIX}.merged"
+
+zcat "${REFINED_IBD_PREFIX}.ibd.gz" | \
+java -Xmx"${MEM_GB}g" -jar "${MERGE_IBD_JAR}" \
+  "${PHASED_PREFIX}.vcf.gz" \
+  "${MAP_OUT}" \
+  0.6 \
+  1 \
+> "${MERGED_PREFIX}.ibd"
+
+# Compress merged output
+gzip -f "${MERGED_PREFIX}.ibd"
+
+if [[ -f "${MERGED_PREFIX}.ibd.gz" ]]; then
+  echo "[Done] Merged IBD output: ${MERGED_PREFIX}.ibd.gz"
+else
+  echo "[Error] Merged IBD file not found!" >&2
+  exit 1
+fi
