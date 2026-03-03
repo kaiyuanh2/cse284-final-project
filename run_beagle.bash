@@ -19,25 +19,6 @@ MEM_GB=8
 BEAGLE_JAR="beagle.jar"
 REFINED_IBD_JAR="refined-ibd.jar"
 MERGE_IBD_JAR="merge-ibd-segments.jar"
-MERGE_IBD_URL="https://faculty.washington.edu/browning/refined-ibd/merge-ibd-segments.17Jan20.102.jar"
-
-# Environment Check
-need_cmd() { command -v "$1" >/dev/null 2>&1 || { echo "Missing required command: $1" >&2; exit 1; }; }
-
-need_cmd plink
-need_cmd awk
-need_cmd sort
-need_cmd bgzip
-need_cmd tabix
-need_cmd java
-need_cmd wget
-
-if [[ ! -f "$MERGE_IBD_JAR" ]]; then
-  echo "*** merge-ibd-segments.jar not found — downloading ***"
-  wget -O "$MERGE_IBD_JAR" "$MERGE_IBD_URL"
-fi
-
-[[ -f "$MERGE_IBD_JAR" ]] || { echo "Failed to obtain $MERGE_IBD_JAR"; exit 1; }
 
 # Step 1: Remove duplicate positions (CHR:BP) — Avoid Beagle rejection
 echo "*** Step 1: Removing duplicate CHR:BP variants from ${BFILE_IN} ***"
@@ -56,7 +37,7 @@ plink --bfile "${BFILE_IN}" \
 echo "[Done] Wrote de-duplicated PLINK files: ${BFILE_NODUP}.bed/.bim/.fam"
 
 # Step 2: Export VCF from PLINK + index
-echo "*** Step 3: Exporting bgzipped VCF from ${BFILE_NODUP} ***"
+echo "*** Step 2: Exporting bgzipped VCF from ${BFILE_NODUP} ***"
 
 plink --bfile "${BFILE_NODUP}" \
       --recode vcf bgz \
@@ -65,9 +46,9 @@ plink --bfile "${BFILE_NODUP}" \
 tabix -p vcf "${VCF_PREFIX}.vcf.gz"
 echo "[Done] VCF created and indexed: ${VCF_PREFIX}.vcf.gz"
 
-# Step 4: Build sorted PLINK-style map file for Beagle/IBD
+# Step 3: Build sorted PLINK-style map file for Beagle/IBD
 # Format: CHR SNP cM BP (from .bim columns 1,2,3,4) sorted by CHR then BP
-echo "*** Step 4: Building sorted map file ${MAP_OUT} ***"
+echo "*** Step 3: Building sorted map file ${MAP_OUT} ***"
 
 awk 'BEGIN{OFS="\t"} {print $1,$2,$3,$4}' "${BFILE_NODUP}.bim" \
   | sort -k1,1n -k4,4n > "${MAP_OUT}"
@@ -92,8 +73,8 @@ else
   echo "[Error] Expected phased VCF not found: ${PHASED_PREFIX}.vcf.gz" >&2
 fi
 
-# Step 6: Run Refined IBD (defaults)
-echo "*** Step 6: Running Refined IBD ***"
+# Step 4: Run Refined IBD (defaults)
+echo "*** Step 4: Running Refined IBD ***"
 
 java -Xmx"${MEM_GB}g" -jar "${REFINED_IBD_JAR}" \
   gt="${PHASED_PREFIX}.vcf.gz" \
@@ -103,8 +84,8 @@ java -Xmx"${MEM_GB}g" -jar "${REFINED_IBD_JAR}" \
 echo "[Done] Refined IBD output: ${REFINED_IBD_PREFIX}.*"
 echo "All Done"
 
-# Step 7: Merge IBD segments
-echo "*** Step 7: Merging IBD segments ***"
+# Step 5: Merge IBD segments
+echo "*** Step 5: Merging IBD segments ***"
 
 MERGED_PREFIX="${REFINED_IBD_PREFIX}.merged"
 
