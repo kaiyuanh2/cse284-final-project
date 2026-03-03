@@ -20,6 +20,12 @@ The output should be lwk.refined_ibd.merged.ibd.gz.
 
 ## Discussion
 
+As a baseline, we used PLINK’s built-in relatedness estimation (--genome to compute PI_HAT) to identify
+close relatives directly from genotype similarity. This gives us an independent, established measure of
+relatedness that does not rely on phasing or IBD segment detection. Comparing our Beagle + Refined IBD 
+results to the PLINK baseline is important to validate that our pipeline correctly identifies the same 
+relative pairs and produces consistent relatedness estimates.
+
 Our results can be found in `beagle-relative-finding.ipynb`. 
 
 For each pair (A, B), we calculated the following:
@@ -47,3 +53,8 @@ We noticed the overall dataset had multiple clear first degree families and seve
 relationships. There was also a long tail of distant relatedness. 
 
 ## Remaining Works
+
+As far as remaining works, we will compare PLINK's baseline relatedness estimates and our IBD based 
+relatedness metrics. These are primarily derived from merged segment lengths. We will compare pairwise 
+rankings, degree classifications, and agreement between pi_hat and our Mb based assessment. This will
+allow us to validate our phasing + Refined IBD pipeline and also examine any discrepancies. 
