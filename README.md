@@ -15,8 +15,20 @@ megabases (Mb) as a replacement for PI_HAT.
 
 ## How to run
 
-Run `run_beagle.bash` to run the full Beagle pipeline including preprocessing, phasing, and refined IBD.
-The output should be lwk.refined_ibd.merged.ibd.gz.
+### Dependencies
+No extra installations needed in course environment, use the checklist below if running out of course environment:
+
+Bash: `java`, `plink`, `bcftools`, `tabix`
+
+Python: `pandas`, `gzip`, `matplotlib`
+
+### Run Plink Pipeline
+Run `bash run_plink.bash` to run the full Plink pipeline including preprocessing and IBD export.
+The final output should be `lwk.ibd.nodup.genome`. Then open `plink-relative-finding.ipynb` for final relative finding and visualizations.
+
+### Run Beagle Pipeline
+Run `bash run_beagle.bash` to run the full Beagle pipeline including preprocessing, phasing, and refined IBD.
+The final output should be `lwk.refined_ibd.merged.ibd.gz`. Then open `beagle-relative-finding.ipynb` for final relative finding and visualizations.
 
 ## Discussion
 
@@ -58,3 +70,6 @@ As far as remaining works, we will compare PLINK's baseline relatedness estimate
 relatedness metrics. These are primarily derived from merged segment lengths. We will compare pairwise 
 rankings, degree classifications, and agreement between pi_hat and our Mb based assessment. This will
 allow us to validate our phasing + Refined IBD pipeline and also examine any discrepancies. 
+
+## Challenges
+Phasing in Beagle breaks long IBD tracts into multiple segments, which we observed struggling to predict parent–child pairs.
