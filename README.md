@@ -36,7 +36,7 @@ As a baseline, we used Plink’s built-in relatedness estimation (--genome) to i
 close relatives directly from genotype similarity (IBD1/IBD2/pi_hat). This gives us an independent, established measure of
 relatedness that does not rely on phasing or IBD segment detection experienced in PS2.
 
-In Plink pipeline, we expected IBD1=1 (pi_hat value of .50) for parent/child, IBD1=0.5, IBD2=0.25 (pi_hat value of 0.5) for full siblings. We found 4 possible parent-child pairs and 7 possible sibling pairs, same as in PS2.
+In Plink pipeline, we expected IBD1=1 (pi_hat value of .50) for parent/child, IBD1=0.5, IBD2=0.25 (pi_hat value of 0.5) for full siblings. We found 4 possible parent-child pairs and 6 possible sibling pairs, same as in PS2.
 
 For each pair (A, B), we calculated the following:
 
