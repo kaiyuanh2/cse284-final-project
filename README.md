@@ -38,6 +38,8 @@ relatedness that does not rely on phasing or IBD segment detection experienced i
 
 In Plink pipeline, we expected IBD1=1 (pi_hat value of .50) for parent/child, IBD1=0.5, IBD2=0.25 (pi_hat value of 0.5) for full siblings. We found 4 possible parent-child pairs and 6 possible sibling pairs, same as in PS2.
 
+We identify close relatives in Beagle pipeline by ranking pairs using total shared segment length. Segment statistics such as the number of segments and maximum segment length are visualized to explore potential differences between relationship types. Based on our heuristic standards, we found 2 possible parent-child pairs and 7 possible sibling pairs.
+
 For each pair (A, B), we calculated the following:
 
 1. nseg_raw which is the number of IBD segments detected
@@ -47,9 +49,7 @@ For each pair (A, B), we calculated the following:
 5. mean_lod and max_lod score across detected segments
 6. pihat_like_mb which is the total shared Mb divided by 2 divided by 3400 (assumed autosomal genome) to simulate percentage of shared genome (pi_hat) in Plink
 
-We identify close relatives in Beagle pipeline by ranking pairs using total shared segment length. Segment statistics such as the number of segments and maximum segment length are visualized to explore potential differences between relationship types. Based on our heuristic standards, we found 2 possible parent-child pairs and 7 possible sibling pairs.
-
-We also generated two scatter plots: total shared Mb vs number of segments AND total shared Mb vs 
+We also generated two scatter plots from Beagle results: total shared Mb vs number of segments AND total shared Mb vs 
 maximum segment length. We noticed that first degree relatives cluster at 1200 to 1500 Mb. Sibling 
 like pairs have more segments (200s-400s) than parent-child like and are large but have fragmented sharing due to recombination breaking shared regions
 into smaller pieces. In contrast, parent–child pairs typically show fewer segments but much longer contiguous segments.
@@ -58,7 +58,7 @@ Our results can be found in `plink-relative-finding.ipynb` and `beagle-relative-
 
 ## Remaining Works
 
-As far as remaining works, we will compare Plink's baseline relatedness estimates with our Beagle + Refined IBD-based relatedness metrics primarily derived from shared segment lengths. We will compare pairwise rankings and agreement between pi_hat and our Mb based assessment. This will allow us to validate our Beagle phasing + Refined IBD pipeline and also examine any discrepancies.
+For remaining works, we will compare Plink's baseline relatedness estimates with our Beagle + Refined IBD-based relatedness metrics primarily derived from shared segment lengths. We will compare pairwise rankings and agreement between pi_hat and our Mb based assessment. This will allow us to validate our Beagle phasing + Refined IBD pipeline and also examine any discrepancies in detail.
 
 ## Challenges
 Phasing in Beagle breaks long IBD tracts into multiple segments, which we observed struggling to predict parent–child pairs with estimating pi_hat values.
