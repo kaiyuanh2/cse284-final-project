@@ -55,8 +55,8 @@ awk 'BEGIN{OFS="\t"} {print $1,$2,$3,$4}' "${BFILE_NODUP}.bim" \
 
 echo "[Done] Map created: ${MAP_OUT}"
 
-# Step 5: Phasing with Beagle (no imputation)
-echo "*** Step 5: Phasing with Beagle ***"
+# Step 4: Phasing with Beagle
+echo "*** Step 4: Phasing with Beagle ***"
 
 java -Xmx"${MEM_GB}g" -jar "${BEAGLE_JAR}" \
   gt="${VCF_PREFIX}.vcf.gz" \
@@ -65,7 +65,6 @@ java -Xmx"${MEM_GB}g" -jar "${BEAGLE_JAR}" \
   impute=false \
   nthreads="${THREADS}"
 
-# Beagle should produce: ${PHASED_PREFIX}.vcf.gz
 if [[ -f "${PHASED_PREFIX}.vcf.gz" ]]; then
   tabix -p vcf "${PHASED_PREFIX}.vcf.gz" || true
   echo "[Done] Phased VCF: ${PHASED_PREFIX}.vcf.gz"
@@ -73,8 +72,8 @@ else
   echo "[Error] Expected phased VCF not found: ${PHASED_PREFIX}.vcf.gz" >&2
 fi
 
-# Step 4: Run Refined IBD (defaults)
-echo "*** Step 4: Running Refined IBD ***"
+# Step 5: Run Refined IBD (defaults)
+echo "*** Step 5: Running Refined IBD ***"
 
 java -Xmx"${MEM_GB}g" -jar "${REFINED_IBD_JAR}" \
   gt="${PHASED_PREFIX}.vcf.gz" \
@@ -84,8 +83,8 @@ java -Xmx"${MEM_GB}g" -jar "${REFINED_IBD_JAR}" \
 echo "[Done] Refined IBD output: ${REFINED_IBD_PREFIX}.*"
 echo "All Done"
 
-# Step 5: Merge IBD segments
-echo "*** Step 5: Merging IBD segments ***"
+# Step 6: Merge IBD segments
+echo "*** Step 6: Merging IBD segments ***"
 
 MERGED_PREFIX="${REFINED_IBD_PREFIX}.merged"
 
