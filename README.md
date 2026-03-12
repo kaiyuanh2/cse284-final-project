@@ -1,17 +1,15 @@
-# CSE 284 Final Project - Plink vs. Beagle for Relative Finding
+# CSE 284 Final Project - PLINK vs. Beagle for Relative Finding
 
-Our final project implements an Identity-by-Descent (IBD) detection and relatedness inference 
-pipeline using the LWK genotype data in Plink format (same as PS2) using Beagle based on shared segments for comparison with Plink. Our workflow is as follows:
+Our final project implements an Identity-by-Descent (IBD) detection and relatedness inference pipeline using the LWK genotype data from 1000 Genomes in PLINK format (same as PS2) using Beagle based on shared segments for comparison with PLINK. Our Beagle workflow is as follows:
 
 1. Cleans genotype data by removing duplicate variants
-2. Converts Plink to VCF
+2. Converts PLINK to VCF
 3. Phases halotypes using Beagle
 4. Detects IBD segments using Refined IBD
 5. Merges overlapping IBD segments
 6. Quantifies pairwise relatedness and identifies close relatives
 
-The analysis estimates relatedness and summarizes shared genomic segments using total shared 
-megabases (Mb) as a replacement for IBD1/IBD2/pi_hat in Plink baseline from PS2.
+The analysis estimates relatedness and summarizes shared genomic segments using genome coverage based on total shared megabases (Mb) to determine close (first-order) relatives. In addition, we manually inspected 1000 Genomes data to find ground truth relative information of sampled LWK dataset.
 
 ## How to run
 
@@ -22,8 +20,8 @@ Bash: `java`, `plink`, `bcftools`, `tabix`
 
 Python: `pandas`, `gzip`, `matplotlib`
 
-### Run Plink (Baseline) Pipeline
-Run `bash run_plink.bash` to run the full Plink pipeline including preprocessing and IBD export.
+### Run PLINK (Baseline) Pipeline
+Run `bash run_plink.bash` to run the full PLINK pipeline including preprocessing and IBD export.
 The final output should be `lwk.ibd.nodup.genome`. Then open `plink-relative-finding.ipynb` for final relative finding and visualizations.
 
 ### Run Beagle Pipeline
@@ -32,36 +30,25 @@ The final output should be `lwk.refined_ibd.merged.ibd.gz`. Then open `beagle-re
 
 ## Discussion
 
-As a baseline, we used Plink’s built-in relatedness estimation (--genome) to identify
+As a baseline, we used PLINK’s built-in relatedness estimation (--genome) to identify
 close relatives directly from genotype similarity (IBD1/IBD2/pi_hat). This gives us an independent, established measure of
 relatedness that does not rely on phasing or IBD segment detection experienced in PS2.
 
-In Plink pipeline, we expected IBD1=1 (pi_hat value of .50) for parent/child, IBD1=0.5, IBD2=0.25 (pi_hat value of 0.5) for full siblings. We found 4 possible parent-child pairs and 6 possible sibling pairs, same as in PS2.
+In PLINK pipeline, we expected IBD1=1 (pi_hat value of .50) for parent/child, IBD1=0.5, IBD2=0.25 (pi_hat value of 0.5) for full siblings. We found 4 possible parent-child pairs and 6 possible sibling pairs, same as in PS2. We generated IBD1 vs. IBD2 graph adding identified parent/child and sibling pairs. Compared to ground truth (manually collected from 1000 Genomes website), 4 parent-child pairs match perfectly and 5 out of 6 sibling pairs matched.
 
-We identify close relatives in Beagle pipeline by ranking pairs using total shared segment length. Segment statistics such as the number of segments and maximum segment length are visualized to explore potential differences between relationship types. Based on our heuristic standards, we found 2 possible parent-child pairs and 7 possible sibling pairs.
+We identify close (first-order) relatives in Beagle pipeline by ranking pairs using genome coverage (Divide by estimated 2.8 Gb from Chromosome 1 to 22) derived from total shared segment length. Segment statistics such as the number of shared segments and maximum shared segment length are observed to separate parent/child and sibling pairs. The top 10 close relatives exactly match all PLINK pipeline's 10 detections and covered all 9 ground truth pairs.
 
-For each pair (A, B), we calculated the following:
+We generated two plots from Beagle results: one histogram exploring genome coverage data distribution of Top 1% shared segment coverage, one scatterplot of maximum shared segment length vs. number of shared IBD segments to explore how they divide parent-child pairs and sibling pairs with reference to PLINK relative finding and ground truth.
 
-1. nseg_raw which is the number of IBD segments detected
-2. total_bp_merged / total_mb_merged which are total merged shared segment lengths (in bp/Mb) across autosomes
-3. mean_seg_mb_raw which is the mean segment size
-4. max_seg_mb_raw which is the largest segment
-5. mean_lod and max_lod score across detected segments
-6. pihat_like_mb which is the total shared Mb divided by 2 divided by 3400 (assumed autosomal genome) to simulate percentage of shared genome (pi_hat) in Plink
-
-We also generated two scatter plots from Beagle results: total shared Mb vs number of segments AND total shared Mb vs 
-maximum segment length. We noticed that first degree relatives cluster at 1200 to 1500 Mb. Sibling 
-like pairs have more segments (200s-400s) than parent-child like and are large but have fragmented sharing due to recombination breaking shared regions
-into smaller pieces. In contrast, parent–child pairs typically show fewer segments but much longer contiguous segments.
-
-Our results can be found in `plink-relative-finding.ipynb` and `beagle-relative-finding.ipynb`. Comparing our Beagle + Refined IBD results to the Plink baseline is important to validate that our pipeline correctly identifies the same relative pairs and produces consistent relatedness estimates.
-
-## Remaining Works
-
-For remaining works, we will compare Plink's baseline relatedness estimates with our Beagle + Refined IBD-based relatedness metrics primarily derived from shared segment lengths. We will compare pairwise rankings and agreement between pi_hat and our Mb based assessment. This will allow us to validate our Beagle phasing + Refined IBD pipeline and also examine any discrepancies in detail.
+All results and visualizations can be found in `plink-relative-finding.ipynb` and `beagle-relative-finding.ipynb`. Comparing our Beagle + Refined IBD results to the PLINK pipeline is important to validate that Beagle pipeline also correctly identifies the same relative pairs and produces consistent relatedness estimates.
 
 ## Challenges
-Phasing in Beagle breaks long IBD tracts into multiple segments, which we observed struggling to predict parent–child pairs with estimating pi_hat values.
+- Phasing in Beagle breaks long IBD tracts into multiple segments, with segment-level output, we observed struggling to predict parent–child pairs due to difficulties recovering IBD0/1/2 values in PLINK pipeline.
+- Our observation on how maximum shared segment length and number of shared IBD segments divide parent-child and sibling pairs in Beagle pipeline is only heuristic. More evidence is needed to verify this observation.
+- Beagle phasing is very slow (> 1 hr), making it much less efficient compared to PLINK pipeline for relative finding.
+
+## Remaining Works
+If we have chance to continue working on this project, we will consider adding more datasets to verify our heuristic on how maximum shared segment length and number of shared IBD segments divide parent-child and sibling pairs in Beagle pipeline, and attempt to optimize Beagle phasing or use smaller sampled portion of genome for relative finding.
 
 ## References
 [Textbook 5.4: Computing expected IBD segment sharing](https://gymrek-lab.github.io/personal-genomics-textbook/ancestry/relfind/ibd_segments.html)
