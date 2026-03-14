@@ -15,7 +15,7 @@ REFINED_IBD_PREFIX="lwk.refined_ibd"
 THREADS=4
 MEM_GB=8
 
-# Beagle/RefinedIBD jar files
+# Beagle/RefinedIBD/MergedIBDSegments jar files
 BEAGLE_JAR="beagle.jar"
 REFINED_IBD_JAR="refined-ibd.jar"
 MERGE_IBD_JAR="merge-ibd-segments.jar"
@@ -81,7 +81,6 @@ java -Xmx"${MEM_GB}g" -jar "${REFINED_IBD_JAR}" \
   out="${REFINED_IBD_PREFIX}"
 
 echo "[Done] Refined IBD output: ${REFINED_IBD_PREFIX}.*"
-echo "All Done"
 
 # Step 6: Merge IBD segments
 echo "*** Step 6: Merging IBD segments ***"
