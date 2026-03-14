@@ -47,7 +47,7 @@ All results and visualizations can be found in `plink-relative-finding.ipynb` an
 ## Challenges
 - Phasing in Beagle can break long IBD tracts into multiple segments; with only segment-level output, we found it difficult to predict parent/child pairs because the pipeline did not directly recover IBD0/1/2-style values as in PLINK.
 - Our observation on how maximum shared segment length and number of shared IBD segments divide parent/child and sibling pairs in Beagle pipeline is only heuristic. More evidence is needed to verify this observation.
-- Beagle phasing is very slow (1 hr 10 min) and Refined IBD takes 51 seconds, whereas PLINK `--genome` only takes 3 seconds (measured in course datahub 4 cores + 16GB RAM), making it much less efficient compared to PLINK pipeline for relative finding.
+- Beagle phasing is very slow (1 hr 10 min) and Refined IBD takes 51 seconds, whereas PLINK `--genome` only takes 3 seconds (measured in course datahub 4 CPU + 16GB RAM), making it much less efficient compared to PLINK pipeline for relative finding.
 
 ## Remaining Works
 If we had the chance to continue this project, we will consider adding more datasets to verify our heuristic on how maximum shared segment length and number of shared IBD segments divide parent/child and sibling pairs in Beagle pipeline, and attempt to optimize Beagle phasing or use smaller sampled portion of genome for relative finding.
